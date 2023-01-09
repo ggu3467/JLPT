@@ -7,6 +7,8 @@
 #
 
 import logging
+import pandas as XLS
+import openpyxl
 
 
 ## \b encodeFileName:  encode un chemin de fichier selon l'OS (Windows/Linux)
@@ -34,17 +36,21 @@ class Load_Excel(object):
 
     def __enter__(self):
 
-        print('toto')
+        Test_Set = XLS.read_excel(self.file_name)
 
         return
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        logging.info("Chargement fichier SCL:" + str(self.fname[0]) + "réussi.")
+        logging.info("Chargement fichier SCL:" + str(self.file_name[0]) + "réussi.")
 
 
 
 if __name__ == '__main__':
 
-    with Load_Excel("JLP3.xls", True, False) as (SCL_LOADED):  # , self.T_LoadSCL):
+    with Load_Excel("JLPT_3.xls", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
         print("Chargement SCL ok")  # str(self.T_LoadSCL))
+    
+
+
+    print('xx')
 
