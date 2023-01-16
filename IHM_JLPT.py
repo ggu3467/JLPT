@@ -9,6 +9,8 @@ import time
 import xml.etree.ElementTree as ET
 import logging
 
+from IEC_load import Load_Excel
+
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget, QVBoxLayout, QCheckBox
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QGridLayout, QRadioButton
 from PyQt5.QtWidgets import QFileDialog, QWidget, QPushButton, QFrame, QMessageBox, QDialog
@@ -102,8 +104,10 @@ class ButtonText(QPushButton):
 #
 #
 class MainWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self,  _DataJLPT, parent=None):
         QMainWindow.__init__(self, parent)
+
+        self.DataJLPT= _DataJLPT
 
     ## \b AppDemo:  Application dans la fenêtre
     #
@@ -221,7 +225,7 @@ class MainWindow(QMainWindow):
         #   * l'enregistrement des résultats
         #   * la gestion éventuelle de 'branche' pour chaque poste'.
         #   * la création des anomalies, pour les tests échouées...
-        def BottomButtons(self) -> (QHBoxLayout, QFrame):
+        def BottomButtons(self): # -> QHBoxLayout, QFrame:
 
             Left_frame = QFrame(self)
             Left_frame.setLineWidth(4)
@@ -840,8 +844,13 @@ class MainWindow(QMainWindow):
 
 if __name__ == '__main__':
 
+
+    with Load_Excel("JLPT_3.xls", True, False) as (JLPT_TestSet):  # , se lf.T_LoadSCL):
+        print("Chargement SCL ok")  # str(self.T_LoadSCL))
+
+    print('xxxxxxxx')
     app = QApplication(sys.argv)
-    Win = MainWindow()
+    Win = MainWindow(JLPT_TestSet)
     demo = Win.AppDemo(False)
     demo.show()
     sys.exit(app.exec_())
