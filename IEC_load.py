@@ -45,50 +45,43 @@ class Load_Excel(object):
         for i in range(LineIndex, sheet.nrows): 
             Title = sheet.cell_value(i, 0)
 
+# Détection d'un grand chapître
             if Title.startswith('問題'):
-
-                print('Question found' + Title)
+                
+                # TODO récupérer le numéro de chapître
+                print('Chapitre de question' + Title)
                 LineIndex = LineIndex +1
 
                 while (True):
                     Topic = sheet.cell_value(LineIndex, 1)
-                    if Topic.startswith('問'):
-
-                        print(sheet.cell_value(LineIndex,1))
-                        LineIndex = LineIndex +1
-                        while True:
-                            Section = sheet.cell_value(LineIndex,1)
-                            if  Section != '':
-                                if Section.startswith('問'):
-                                   # Create Object Question List.     
-
-
-                                    break
-                            
-                            Question = sheet.cell_value(LineIndex, 2)
-                            QuestionList = []
-                            if Question.startswith('(') or Question.startswith('（'):
-                                QuestionList.append(Question)
-                                print(Question)
-
-                            LineIndex = LineIndex +1
-
-
                     LineIndex = LineIndex +1
-                    if Cell == '':
-                        break
-
-
+# Détection d'une phrase qui fera l'objet de questio
+                    if Topic.startswith('問'):                    
+                        Question = Topic
+                        Number = Topic[1]
+                        print("Topic:" + Topic + ':' + str(Number))
+                        LineIndex = self.GetQuestionList(sheet, LineIndex)
             
             else:
                 print('xxx')
 
+    def GetQuestionList(self, sheet, LineIndex):
+                        
+        QuestionList=[]
+        GetQuestion = True
+        while GetQuestion is True:
 
+            Question = sheet.cell_value(LineIndex, 2)
+            if Question.startswith('(') or Question.startswith('（'):
+                QuestionList.append('Q: ' + Question)
+            else:
+                break
+            LineIndex = LineIndex +1
+    
+        for Question in QuestionList:
+            print('Question:'  + Question)
 
-        # for extracting multiple columns at a time
-
-
-        return Test_Set
+        return LineIndex
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         logging.info("Chargement fichier JLPT:" + str(self.file_name[0]) + "réussi.")
@@ -97,7 +90,7 @@ class Load_Excel(object):
 
 if __name__ == '__main__':
 
-    with Load_Excel("JLPT_3.xls", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
+    with Load_Excel("JLPT_3_ESSAI.xlsx", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
         print("Chargement SCL ok")  # str(self.T_LoadSCL))
 
 
