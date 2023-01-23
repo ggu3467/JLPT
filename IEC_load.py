@@ -80,15 +80,17 @@ class Load_Excel(object):
                 NumQuestion  = ListeChoix[0]
                 Topic        = ListeChoix[1].split(' ')
                 print('Choix' + NumQuestion + Topic[1] + Topic[0])
-                Proposition = ''
-                for i in range(2,5):
-                    Proposition = Proposition + ListeChoix[i]
-                print('Choix:' +  Proposition)
+                Proposition = []
+                for i in range(1,5):
+                    Proposition.append(ListeChoix[i])
+
+                for i in range(0,4):
+                    print('Choix:' +  Proposition[i] + '\n')
 
             else:
                 break
 
-             LineIndex = LineIndex +1
+            LineIndex = LineIndex +1
     
         for Question in QuestionList:
             print('Question:'  + Question)
