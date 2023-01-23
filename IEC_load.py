@@ -7,7 +7,7 @@
 #
 
 import logging
-#import pandas as XLS
+#import pandas as XLRD
 import xlrd as XLRD
 
 
@@ -36,8 +36,8 @@ class Load_Excel(object):
 
     def __enter__(self):
 
+#        Test_Set = XLRD.open_workbook(self.file_name)
         Test_Set = XLRD.open_workbook(self.file_name)
-
         sheet = Test_Set.sheet_by_index(0) 
         LineIndex = 1
         
@@ -47,7 +47,7 @@ class Load_Excel(object):
 
 # Détection d'un grand chapître
             if Title.startswith('問題'):
-                
+                print("Chapitre de question:" + '問題' + ':' + Title[2])
                 # TODO récupérer le numéro de chapître
                 print('Chapitre de question' + Title)
                 LineIndex = LineIndex +1
@@ -70,13 +70,25 @@ class Load_Excel(object):
         QuestionList=[]
         GetQuestion = True
         while GetQuestion is True:
-
+            
             Question = sheet.cell_value(LineIndex, 2)
+            NumQuestion = []
             if Question.startswith('(') or Question.startswith('（'):
-                QuestionList.append('Q: ' + Question)
+                NumQuestion.append('Q: ' + Question)
+
+                ListeChoix = Question.split('．')
+                NumQuestion  = ListeChoix[0]
+                Topic        = ListeChoix[1].split(' ')
+                print('Choix' + NumQuestion + Topic[1] + Topic[0])
+                Proposition = ''
+                for i in range(2,5):
+                    Proposition = Proposition + ListeChoix[i]
+                print('Choix:' +  Proposition)
+
             else:
                 break
-            LineIndex = LineIndex +1
+
+             LineIndex = LineIndex +1
     
         for Question in QuestionList:
             print('Question:'  + Question)
@@ -90,7 +102,7 @@ class Load_Excel(object):
 
 if __name__ == '__main__':
 
-    with Load_Excel("JLPT_3_ESSAI.xlsx", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
+    with Load_Excel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
         print("Chargement SCL ok")  # str(self.T_LoadSCL))
 
 
