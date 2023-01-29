@@ -56,18 +56,7 @@ class CampagneFileName:
 #
 # @param fname  : nom du fichier précédé d'un chemin relatif (../../CampagneDeTest/CampagneExemple.xml
 
-class LoadCampagne:
-    def __init__(self, _fname):
-        self.fname = _fname
-
-    def __enter__(self):
-        LocalDir = os.path.abspath(os.path.dirname(__file__))
-        filepath = os.path.join(LocalDir, self.fname)
-        self.file = open(filepath)
-        return self.file.read()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        logging .info("Fichier de campagne de test chargé:" + self.fname)
+from IEC_load import Load_Excel
 
 ## \b StandardItem:  met en forme une chaine de caractère (texte, taille, gras, couleur).
 #
@@ -269,7 +258,7 @@ class MainWindow(QMainWindow):
             else:
                 self.fname = QFileDialog.getOpenFileName(self, 'Open file', 'SCL_files\*.*', " IEC61850 files")
 
-            with LoadSCL(self.fname[0], False ,True) as (self.SCL_DATA):  # Les données des IED ne sont pas chargé
+            with LoadSCL("JLPT_3_ESSAI_2003.xls", False ,True) as (self.SCL_DATA):  # Les données des IED ne sont pas chargé
                 logging.info("Chargement SCL initial:")  # Seul les IED concernés par la campagne seront chargés.
 
             pathSplit = self.fname[0].split(os.sep)  #
@@ -304,23 +293,9 @@ class MainWindow(QMainWindow):
         # TODO :
         def ChargerCampagne(self, _fileName=None, modeTest=False):
             logging.info("ChargerCampagne")
-            self.fileName = _fileName
-            self.treeView.clear()
-            self.tGraphicalBay = []
-            self.Poste = []
 
-            # Chargement d'une campagne:
-            if self.fileName is None or modeTest == False:
-                self.fileName, result = QFileDialog.getOpenFileName(self,
-                                                                    "Ouverture d'un fichier de campagne existante",
-                                                                    "../../Lot9/CampagneDeTest\*.xml",
-                                                                    " Fichiers XML de campagne")
-                self.tree = ET.parse(self.fileName)
-                xmlCampagne = self.tree.getroot()
-            else:
-                self.fileName = "../../Lot9/CampagneDeTest/PALLU/PALLU_ _N_Tranche_1.xml"
-                self.tree = ET.parse(self.fileName)
-                xmlCampagne = self.tree.getroot()
+            with Load_Excel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
+                print("Chargement SCL ok")  # str(self.T_LoadSCL))
 
 
             #  TODO traiter le cas d'échec           if xmlCampagne is not None:
@@ -845,7 +820,7 @@ class MainWindow(QMainWindow):
 if __name__ == '__main__':
 
 
-    with Load_Excel("JLPT_3.xls", True, False) as (JLPT_TestSet):  # , se lf.T_LoadSCL):
+    with Load_Excel("JLPT_1991_N4.xls", True, False) as (JLPT_TestSet):  # , se lf.T_LoadSCL):
         print("Chargement SCL ok")  # str(self.T_LoadSCL))
 
     print('xxxxxxxx')
