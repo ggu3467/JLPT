@@ -58,10 +58,27 @@ class JLPT:
 # @return sclMgr    : Point d'accès aux services de la librairie 'scl_loader'
 # @return data      : Image de la section DataTypeTemplates du SCL.
 # @return tComm     : Image de la section Communication du SCL
-class Load_Excel(object):
+
+class Question:
+    def __init__(self, question_text, correct_answer, hint='' ):
+        self.question = question_text
+        self.correct_answer = correct_answer
+        self.hint   = hint
+class Proposition:
+    def __init__(self, reponse1, reponse2, reponse3, reponse4, reponse5='', reponse6='', answer='', hint='' ):
+        self.reponse1 = reponse1
+        self.reponse2 = reponse2
+        self.reponse3 = reponse3
+        self.reponse4 = reponse4
+        self.reponse5 = reponse5
+        self.reponse6 = reponse6
+        self.answer  = answer
+        self.hint    = hint
+
+class LoadExcel(object):
     def __init__(self, _name: str, _load_excel:bool = False, _fullpath=False):
         self.file_name  = _name
-        self.fullPath   = _fullpath
+        self.full_path   = _fullpath
         self.load_excel = _load_excel
 
         self.TEST = JLPT(1991, 'Level4')
@@ -74,9 +91,8 @@ class Load_Excel(object):
         LineIndex = 1
 
         # for extracting multiple rows at a time
-        for ligne in range(LineIndex, sheet.nrows): 
-            num_titre = 0
-            Title = sheet.cell_value(ligne,0)
+        for i in range(LineIndex, sheet.nrows): 
+            Title = sheet.cell_value(i, 0)
 
 # Détection d'un grand chapître
             if Title.startswith('問題'): 
@@ -97,9 +113,9 @@ class Load_Excel(object):
                 print('Chapitre de question' + Title)
                 LineIndex = LineIndex +1
 
-                while (True):
-                    Topic = sheet.cell_value(LineIndex, 1)
-                    LineIndex = LineIndex +1
+                while True:
+                    topic = sheet.cell_value(line_index, 1)
+                    line_index = line_index +1
 # Détection d'une phrase qui fera l'objet de questio
                     if Topic.startswith('問'):                    
                         Question = Topic
@@ -112,11 +128,11 @@ class Load_Excel(object):
             else:
                 print('xxx')
 
-    def GetQuestionList(self, sheet, LineIndex):
+    def GetQuestionList(self, sheet, line_index:int):
                         
-        QuestionList=[]
-        GetQuestion = True
-        while GetQuestion is True:
+
+        get_question = True
+        while get_question is True:
             
             try:
                 Question = sheet.cell_value(LineIndex, 2)
@@ -128,26 +144,25 @@ class Load_Excel(object):
             if Question.startswith('(') or Question.startswith('（'):
                 NumQuestion.append('Q: ' + Question)
 
-                ListeChoix = Question.split('．')
-                NumQuestion  = ListeChoix[0]
-                Topic        = ListeChoix[1].split(' ')
-                print('Choix' + NumQuestion + Topic[1] + Topic[0])
-                Proposition = []
+                liste_choix = question.split('．')
+                num_question  = liste_choix[0]
+                topic        = liste_choix[1].split(' ')
+                print('Choix' + num_question + topic[1] + topic[0])
+                proposition = []
                 for i in range(1,5):
-                    Proposition.append(ListeChoix[i])
+                    proposition.append(liste_choix[i])
 
                 for i in range(0,4):
-                    print('Choix:' +  Proposition[i] + '\n')
+                    print('Choix:' +  proposition[i] + '\n')
 
             else:
                 break
 
-            LineIndex = LineIndex +1
+            line_index = line_index +1
     
-        for Question in QuestionList:
-            print('Question:'  + Question)
 
-        return LineIndex
+
+        return line_index
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         logging.info("Chargement fichier JLPT:" + str(self.file_name[0]) + "réussi.")
@@ -156,7 +171,7 @@ class Load_Excel(object):
 
 if __name__ == '__main__':
 
-    with Load_Excel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
+    with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
         print("Chargement SCL ok")  # str(self.T_LoadSCL))
 
 
