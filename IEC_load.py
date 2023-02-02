@@ -26,27 +26,29 @@ class Answers:
         self.Ans3 = _Ans3
         self.Ans4 = _Ans4
 
-class QuestionTopic:
+class question_topic:
     def __init__(self, _title):
         self.title = _title
-
+"""
+ Définition du modèle de donnée d'un test JLPT
+"""
 class JLPT:
     def __init__(self, _year, _level):
-        self.Year  = _year
-        self.Level = _level
-    class partie1:
+        self.year  = _year
+        self.level = _level
+    class partie_1:
         def __init__(self,_text):
             self.text = _text
-            self.QuestionTopic = []
-    class partie2:
+            self.question_topic = []
+    class partie_2:
         def __init__(self, _text):
             self.text = _text
-            self.QuestionTopic = []
+            self.question_topic = []
 
-    class partie3:
+    class partie_3:
         def __init__(self, _text):
             self.text = _text
-            self.QuestionTopic = []
+            self.question_topic = []
 
 
 
@@ -88,61 +90,60 @@ class LoadExcel(object):
 #        Test_Set = XLRD.open_workbook(self.file_name)
         Test_Set = XLRD.open_workbook(self.file_name)
         sheet = Test_Set.sheet_by_index(0) 
-        LineIndex = 1
-
+        line_index = 1
+        num_titre = 0
         # for extracting multiple rows at a time
-        for i in range(LineIndex, sheet.nrows): 
+        for i in range(line_index, sheet.nrows): 
             Title = sheet.cell_value(i, 0)
 
 # Détection d'un grand chapître
             if Title.startswith('問題'): 
                 if num_titre == 0:
-                    self.TEST.partie1.text = Title
-                    print('self.TEST.partie1.text :' + self.TEST.partie1.text )
+                    self.TEST.partie_1.text = Title
+                    print('self.TEST.partie1.text :' + self.TEST.partie_1.text )
                     num_titre = num_titre + 1
                 elif num_titre == 1:
-                    self.TEST.partie2.text = Title
-                    print('self.TEST.partie1.text :' + self.TEST.partie2.text )
+                    self.TEST.partie_2.text = Title
+                    print('self.TEST.partie1.text :' + self.TEST.partie_2.text )
                     num_titre = num_titre + 1
                 elif num_titre == 1:
-                    self.TEST.partie3.text = Title
-                    print('self.TEST.partie1.text :' + self.TEST.partie2.text )
+                    self.TEST.partie_3.text = Title
+                    print('self.TEST.partie1.text :' + self.TEST.partie_3.text )
 
                 print("Chapitre de question:" + '問題' + ':' + Title[2])
                 # TODO récupérer le numéro de chapître
                 print('Chapitre de question' + Title)
-                LineIndex = LineIndex +1
+                line_index = line_index +1
 
                 while True:
                     topic = sheet.cell_value(line_index, 1)
                     line_index = line_index +1
 # Détection d'une phrase qui fera l'objet de questio
-                    if Topic.startswith('問'):                    
-                        Question = Topic
-                        Number = Topic[1]
-                        print("Topic:" + Topic + ':' + str(Number))
-                        LineIndex = self.GetQuestionList(sheet, LineIndex)
-                        if LineIndex is None:
+                    if topic.startswith('問'):                    
+                        question = topic
+                        number = topic[1]
+                        print("Topic:" + topic + ':' + str(number))
+                        line_index = self.GetQuestionList(sheet, line_index)
+                        if line_index is None:
                             return
             
             else:
                 print('xxx')
 
     def GetQuestionList(self, sheet, line_index:int):
-                        
 
+        question=""
         get_question = True
         while get_question is True:
-            
             try:
-                Question = sheet.cell_value(LineIndex, 2)
+                question = sheet.cell_value(line_index, 2)
             except IndexError:
                 print('fin du fichier..')
                 return None
 
-            NumQuestion = []
-            if Question.startswith('(') or Question.startswith('（'):
-                NumQuestion.append('Q: ' + Question)
+            num_question = []
+            if question.startswith('(') or question.startswith('（'):
+                num_question.append('Q: ' + question)
 
                 liste_choix = question.split('．')
                 num_question  = liste_choix[0]
