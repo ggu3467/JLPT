@@ -36,10 +36,12 @@ class JLPT:
     def __init__(self, _year, _level):
         self.year  = _year
         self.level = _level
+
     class partie_1:
         def __init__(self,_text):
             self.text = _text
             self.question_topic = []
+
     class partie_2:
         def __init__(self, _text):
             self.text = _text
@@ -62,18 +64,13 @@ class JLPT:
 # @return tComm     : Image de la section Communication du SCL
 
 class Question:
-    def __init__(self, question_text, correct_answer, hint='' ):
+    def __init__(self, question_text, correct_answer='', hint='' ):
         self.question = question_text
         self.correct_answer = correct_answer
         self.hint   = hint
 class Proposition:
-    def __init__(self, reponse1, reponse2, reponse3, reponse4, reponse5='', reponse6='', answer='', hint='' ):
-        self.reponse1 = reponse1
-        self.reponse2 = reponse2
-        self.reponse3 = reponse3
-        self.reponse4 = reponse4
-        self.reponse5 = reponse5
-        self.reponse6 = reponse6
+    def __init__(self,  answer='', hint=''):
+        self.reponse = []
         self.answer  = answer
         self.hint    = hint
 
@@ -84,7 +81,8 @@ class LoadExcel(object):
         self.load_excel = _load_excel
 
         self.TEST = JLPT(1991, 'Level4')
-        
+        self.parts =['Ⅰ','ⅠⅠ','Ⅲ']
+        self.NumTitre = [ '1' , '2' ,'3']
     def __enter__(self):
 
 #        Test_Set = XLRD.open_workbook(self.file_name)
@@ -98,6 +96,9 @@ class LoadExcel(object):
 
 # Détection d'un grand chapître
             if Title.startswith('問題'): 
+                num_titre = Title[2]               
+                num_titre = self.parts.index(num_titre)
+
                 if num_titre == 0:
                     self.TEST.partie_1.text = Title
                     print('self.TEST.partie1.text :' + self.TEST.partie_1.text )
@@ -106,7 +107,7 @@ class LoadExcel(object):
                     self.TEST.partie_2.text = Title
                     print('self.TEST.partie1.text :' + self.TEST.partie_2.text )
                     num_titre = num_titre + 1
-                elif num_titre == 1:
+                elif num_titre == 2:
                     self.TEST.partie_3.text = Title
                     print('self.TEST.partie1.text :' + self.TEST.partie_3.text )
 
@@ -116,23 +117,20 @@ class LoadExcel(object):
                 line_index = line_index +1
 
                 while True:
-                    topic = sheet.cell_value(line_index, 1)
+                    QuestionText = sheet.cell_value(line_index, 1)
                     line_index = line_index +1
-# Détection d'une phrase qui fera l'objet de questio
-                    if topic.startswith('問'):                    
-                        question = topic
-                        number = topic[1]
-                        print("Topic:" + topic + ':' + str(number))
-                        line_index = self.GetQuestionList(sheet, line_index)
+# Détection d'une phrase qui fera l'objet de question
+                    if QuestionText.startswith('問'):                    
+                        question = Question(QuestionText)
+                        line_index = self.GetQuestionList(question, sheet, line_index)
                         if line_index is None:
                             return
             
             else:
                 print('xxx')
 
-    def GetQuestionList(self, sheet, line_index:int):
+    def GetQuestionList(self, question:Question, sheet, line_index:int):
 
-        question=""
         get_question = True
         while get_question is True:
             try:
@@ -149,12 +147,10 @@ class LoadExcel(object):
                 num_question  = liste_choix[0]
                 topic        = liste_choix[1].split(' ')
                 print('Choix' + num_question + topic[1] + topic[0])
-                proposition = []
-                for i in range(1,5):
-                    proposition.append(liste_choix[i])
+                proposition = Proposition()
+                for i in range(1,len(liste_choix)):
+                    proposition.reponse.append(liste_choix[i])
 
-                for i in range(0,4):
-                    print('Choix:' +  proposition[i] + '\n')
 
             else:
                 break
