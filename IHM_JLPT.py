@@ -9,7 +9,6 @@ import time
 import xml.etree.ElementTree as ET
 import logging
 
-from IEC_load import Load_Excel
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget, QVBoxLayout, QCheckBox
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QGridLayout, QRadioButton
@@ -51,12 +50,7 @@ class CampagneFileName:
         self.CampagneRepertoire = _repertoire
 
 
-## \b LoadCampagne:  chargement du fichier XML qui décrit une campagne de test.
-# cette classe s'utilise avec le mot clef 'with'.
-#
-# @param fname  : nom du fichier précédé d'un chemin relatif (../../CampagneDeTest/CampagneExemple.xml
 
-from IEC_load import Load_Excel
 
 ## \b StandardItem:  met en forme une chaine de caractère (texte, taille, gras, couleur).
 #
@@ -105,7 +99,7 @@ class MainWindow(QMainWindow):
 
         def __init__(self, _TestMode: bool = False):
             super().__init__()
-            self.setWindowTitle('CREATION / EDITION CAMPAGNE DE TEST')
+            self.setWindowTitle('JLPT TEST')
 
 #            RteIcon = QImage('images/rteLogo.png')
 #            self.setWindowIcon(QIcon(QPixmap.fromImage(RteIcon)))
@@ -149,15 +143,23 @@ class MainWindow(QMainWindow):
 
             self.treeView = QTreeWidget()
             # self.treeView.setHeaderLabels(['    Bay       IED    LD    Steps ', 'Simu', 'Description', 'IP/ldName'])
-            self.treeView.headerItem().setText(0, "Station / Bay / IED / LD / Test")
-            self.treeView.headerItem().setText(1, "Simulé")
-            self.treeView.headerItem().setText(2, "Description")
-            self.treeView.headerItem().setText(3, "IP")
+            self.treeView.headerItem().setText(0, "Question")
+            self.treeView.headerItem().setText(1, "-- A -- ")
+            self.treeView.headerItem().setText(2, "-- B -- ")
+            self.treeView.headerItem().setText(3, "-- C -- ")
+            self.treeView.headerItem().setText(4, "-- D -- ")
+            self.treeView.headerItem().setText(5, " Choice ")
+            self.treeView.headerItem().setText(6, " Result ")
 
+            Answer_size = 80
+            
             self.treeView.setColumnWidth(0, 250)
-            self.treeView.setColumnWidth(1, 100)
-            self.treeView.setColumnWidth(2, 100)
-            self.treeView.setColumnWidth(3, 50)
+            self.treeView.setColumnWidth(1, Answer_size)
+            self.treeView.setColumnWidth(2, Answer_size)
+            self.treeView.setColumnWidth(3, Answer_size)
+            self.treeView.setColumnWidth(4, Answer_size)
+            self.treeView.setColumnWidth(5, Answer_size)
+            self.treeView.setColumnWidth(6, Answer_size)
             self.winLayout.addWidget(self.treeView)
 
             self.winLayout.addLayout(self.containerLayout)
@@ -180,19 +182,20 @@ class MainWindow(QMainWindow):
             hLayout.addWidget(RteTitle)
 
             # Bouton Création de campagne ==> chargement d'une SCL
-            ChargerSCL = ButtonText(" Création campagne\n Chargement SCL ")
-            ChargerSCL.clicked.connect(self.CreationInitiale)
-            hLayout.addWidget(ChargerSCL)
+            Part1 = ButtonText(" 問題Ⅰ＿＿＿のことばはどうよみますか。\n １２３４からいちばんいいものをひとつ からいちばんいいものをひとつ えらびなさい。")
+
+            Part1.clicked.connect(self.CreationInitiale)
+            hLayout.addWidget(Part1)
 
             # Bouton chargement d'une campagne de test (créer initialement via "Création campagne')
-            ChargeCampagne = ButtonText(" Chargement / Modification\n de campagne ")
-            ChargeCampagne.clicked.connect(self.ChargerCampagne)
-            hLayout.addWidget(ChargeCampagne)
+            Part2 = ButtonText(" 問題Ⅱ ＿＿＿のことばはどうかきますか。\n １２３４からいちばんいいものをひと からいちばんいいものをひと つえらびなさい。")
+            Part2.clicked.connect(self.ChargerCampagne)
+            hLayout.addWidget(Part2)
 
             #  Bouton de lancement des tests sur la base de la campagne affichée.
-            LanceCampagne = ButtonText(" Lancer une campagne de test ")
-            LanceCampagne.clicked.connect(self.LanceCampagne)
-            hLayout.addWidget(LanceCampagne)
+            Part3 = ButtonText(" 問題Ⅲ ______のところになにをいれますか。\n １２３４からいちばんいいものをひ からいちばんいいものをひ とつえらびなさい")
+            Part3.clicked.connect(self.LanceCampagne)
+            hLayout.addWidget(Part3)
 
             ## Add horizontal layout of buttons to the grid layout.
             return hLayout
@@ -819,13 +822,9 @@ class MainWindow(QMainWindow):
 
 if __name__ == '__main__':
 
-
-    with Load_Excel("JLPT_1991_N4.xls", True, False) as (JLPT_TestSet):  # , se lf.T_LoadSCL):
-        print("Chargement SCL ok")  # str(self.T_LoadSCL))
-
     print('xxxxxxxx')
     app = QApplication(sys.argv)
-    Win = MainWindow(JLPT_TestSet)
+    Win = MainWindow("toto")
     demo = Win.AppDemo(False)
     demo.show()
     sys.exit(app.exec_())

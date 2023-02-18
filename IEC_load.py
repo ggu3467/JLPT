@@ -68,6 +68,8 @@ class Question:
         self.question = question_text
         self.correct_answer = correct_answer
         self.hint   = hint
+        self.Proposition = Proposition('','')
+        
 class Proposition:
     def __init__(self,  answer='', hint=''):
         self.reponse = []
@@ -122,7 +124,7 @@ class LoadExcel(object):
 # Détection d'une phrase qui fera l'objet de question
                     if QuestionText.startswith('問'):                    
                         question = Question(QuestionText)
-                        line_index = self.GetQuestionList(question, sheet, line_index)
+                        line_index, propo = self.GetQuestionList(question, sheet, line_index)
                         if line_index is None:
                             return
             
@@ -150,8 +152,8 @@ class LoadExcel(object):
                 proposition = Proposition()
                 for i in range(1,len(liste_choix)):
                     proposition.reponse.append(liste_choix[i])
-
-
+                line_index = line_index +1
+                return line_index, proposition
             else:
                 break
 
