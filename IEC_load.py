@@ -50,10 +50,12 @@ class JLPT:
         self.year  = _year
         self.level = _level
 
+
     class partie_1:
         def __init__(self,_text):
             self.text = _text
             self.question_topic = []
+
 
     class partie_2:
         def __init__(self, _text):
@@ -78,8 +80,6 @@ class Question:
         self.question = question_text
         self.correct_answer = correct_answer
         self.hint   = hint
-        self.Proposition = []      # List de SubQuestion
-
 class Proposition:
     def __init__(self,  answer='', hint=''):
         self.reponse = []
@@ -117,7 +117,7 @@ class Test_JLPT:
     # Détection d'un grand chapître
             if Title.startswith('問題'): 
                 num_titre = Title[2]               
-                num_titre = self.parts.index(num_titre)
+#                num_titre = self.parts.index(num_titre)
 
                 if num_titre == 0:
                     self.line_index = self.line_index + 1
