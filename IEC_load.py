@@ -18,6 +18,18 @@ import xlrd as XLRD
 # @param fName      : Nom du fichier ou chemin, utilisant '/' ou '\'. Encodage final pour l'OS utilisé.
 # @param FileName   : Délai d'attente maximal en ms
 #
+#class Question:
+#    def __init__(self, question_text, correct_answer='', hint=''):
+#        self.question = question_text
+#        self.correct_answer = correct_answer
+#        self.hint = hint
+#        self.Proposition = Proposition('', '')
+
+class Proposition:
+    def __init__(self, answer='', hint=''):
+        self.reponse = []
+        self.answer = answer
+        self.hint = hint
 
 class Answers:
     def __init__(self, _Ans1, _Ans2, _Ans3, _Ans4):
@@ -29,6 +41,7 @@ class Answers:
 class question_topic:
     def __init__(self, _title):
         self.title = _title
+        self.subQuestion = []
 """
  Définition du modèle de donnée d'un test JLPT
 """
@@ -36,24 +49,103 @@ class JLPT:
     def __init__(self, _year, _level):
         self.year  = _year
         self.level = _level
+    class question:
+        def __init__(self, choix, _answer, _result):
+            self.choix  = []
+            self.answer = _answer
+            self.result = False
 
     class partie_1:
-        def __init__(self,_text):
-            self.text = _text
-            self.question_topic = []
-
-    class partie_2:
         def __init__(self, _text):
             self.text = _text
-            self.question_topic = []
 
-    class partie_3:
-        def __init__(self, _text):
-            self.text = _text
-            self.question_topic = []
+        class Question1:
+            def __init__(self,_Question):
+                self.question = _Question
+                self.proposition = []
+class sub_Question:
+    def __init__(self, question_text, correct_answer='', hint='' ):
+        self.question = question_text
+        self.correct_answer = correct_answer
+        self.hint   = hint
+class Proposition:
+    def __init__(self, _topic, answer='', hint=''):
+        self.topic   = _topic
+        self.reponse = []
+        self.answer  = answer
+        self.hint    = hint
+
+
+class Test_JLPT:
+    def __init__(self, sheet):
+        self.sheet = sheet
+        self.line_index = 1
+        self.TEST = JLPT(1991, 'Level4')
+        self.Chapitre = [ '問題Ⅰ' , '問題ⅠⅠ', '問題Ⅲ' ]
+        self.section  = [ 1 , 2 , 3]
+        self.Consigne = ""         # " 問題Ⅰ＿＿＿のことばはどうよみますか"
+
+    def TestPart(self):
+        num_titre = 1
+        for Chapitre, Numero in zip (self.Chapitre,self.section):
+            if Numero == 1:
+                Titre = self.sheet.cell_value(self.line_index, 0)
+                partie_1 = JLPT.partie_1(Titre)
+                X = self.ParseTest(partie_1,self.line_index+1)
+                print(X)
+                num_titre = num_titre + 1
+        return self.TEST
+
+    def ParseTest(self,Chapitre, line_index):
+        _topic = self.sheet.cell_value(line_index, 1)  # Exemple:
+        question = []
+        while _topic.startswith('問'):      # Détection d'une phrase qui fera l'objet de question
+
+            TEST1 = self.TEST.partie_1(_topic )
+            Chapitre.topic =_topic
+            line_index = line_index+1
+            while(True):
+                try:
+                    Choix,line_index = self.GetProposition(self.sheet, line_index)
+                    if Choix is not None:
+                        question.append(Choix)
+                    else:
+                        QuestionText = self.sheet.cell_value(line_index, 1)
+                        question.append(question_topic(QuestionText))
+                        Chapitre.Question1 = question
+
+ #                       print("... Question: " + question.title)
+                except Exception as e:
+                    print(e)
+                    return question
+                line_index = line_index + 1
+            print('-------------')
+        return Chapitre
 
 
 
+    def GetProposition(self, sheet, line_index:int):
+        try:
+            TxtQuestion =  sheet.cell_value(line_index, 2)
+            print("Sub Question" + TxtQuestion)
+        except IndexError:
+            print('fin du fichier..')
+            return None, line_index
+
+        proposition = Proposition()
+        if TxtQuestion.startswith('(') or TxtQuestion.startswith('（'):    # ASCII et UTF8 pour '('
+            liste_choix = TxtQuestion.split('．')
+            num_question  = liste_choix[0]
+            topic        = liste_choix[1].split(' ')
+
+            proposition.hint   = ''
+            proposition.answer = ''
+            for i in range(1,len(liste_choix)):
+                proposition.reponse.append(liste_choix[i])
+
+            return proposition, line_index
+        else:
+            return None, line_index
 
 ## \b LoadSCL:  classe générique pour charger un fichier SCL au niveau fichier et au niveau.
 # Le code permet de s'abstraire des problèmes liés à des OS spécifiques
@@ -63,117 +155,28 @@ class JLPT:
 # @return data      : Image de la section DataTypeTemplates du SCL.
 # @return tComm     : Image de la section Communication du SCL
 
-class Question:
-    def __init__(self, question_text, correct_answer='', hint='' ):
-        self.question = question_text
-        self.correct_answer = correct_answer
-        self.hint   = hint
-        self.Proposition = Proposition('','')
-        
-class Proposition:
-    def __init__(self,  answer='', hint=''):
-        self.reponse = []
-        self.answer  = answer
-        self.hint    = hint
-
 class LoadExcel(object):
-    def __init__(self, _name: str, _load_excel:bool = False, _fullpath=False):
-        self.file_name  = _name
-        self.full_path   = _fullpath
+    def __init__(self, _name: str, _load_excel: bool = False, _fullpath=False):
+        self.file_name = _name
+        self.full_path = _fullpath
         self.load_excel = _load_excel
 
-        self.TEST = JLPT(1991, 'Level4')
-        self.parts =['Ⅰ','ⅠⅠ','Ⅲ']
-        self.NumTitre = [ '1' , '2' ,'3']
     def __enter__(self):
-
-#        Test_Set = XLRD.open_workbook(self.file_name)
         Test_Set = XLRD.open_workbook(self.file_name)
-        sheet = Test_Set.sheet_by_index(0) 
-        line_index = 1
-        num_titre = 0
-        # for extracting multiple rows at a time
-        for i in range(line_index, sheet.nrows): 
-            Title = sheet.cell_value(i, 0)
-
-# Détection d'un grand chapître
-            if Title.startswith('問題'): 
-                num_titre = Title[2]               
-                num_titre = self.parts.index(num_titre)
-
-                if num_titre == 0:
-                    self.TEST.partie_1.text = Title
-                    print('self.TEST.partie1.text :' + self.TEST.partie_1.text )
-                    num_titre = num_titre + 1
-                elif num_titre == 1:
-                    self.TEST.partie_2.text = Title
-                    print('self.TEST.partie1.text :' + self.TEST.partie_2.text )
-                    num_titre = num_titre + 1
-                elif num_titre == 2:
-                    self.TEST.partie_3.text = Title
-                    print('self.TEST.partie1.text :' + self.TEST.partie_3.text )
-
-                print("Chapitre de question:" + '問題' + ':' + Title[2])
-                # TODO récupérer le numéro de chapître
-                print('Chapitre de question' + Title)
-                line_index = line_index +1
-
-                while True:
-                    QuestionText = sheet.cell_value(line_index, 1)
-                    line_index = line_index +1
-# Détection d'une phrase qui fera l'objet de question
-                    if QuestionText.startswith('問'):                    
-                        question = Question(QuestionText)
-                        line_index, propo = self.GetQuestionList(question, sheet, line_index)
-                        if line_index is None:
-                            return
-            
-            else:
-                print('xxx')
-
-    def GetQuestionList(self, question:Question, sheet, line_index:int):
-
-        get_question = True
-        while get_question is True:
-            try:
-                question = sheet.cell_value(line_index, 2)
-            except IndexError:
-                print('fin du fichier..')
-                return None
-
-            num_question = []
-            if question.startswith('(') or question.startswith('（'):
-                num_question.append('Q: ' + question)
-
-                liste_choix = question.split('．')
-                num_question  = liste_choix[0]
-                topic        = liste_choix[1].split(' ')
-                print('Choix' + num_question + topic[1] + topic[0])
-                proposition = Proposition()
-                for i in range(1,len(liste_choix)):
-                    proposition.reponse.append(liste_choix[i])
-                line_index = line_index +1
-                return line_index, proposition
-            else:
-                break
-
-            line_index = line_index +1
-    
-
-
-        return line_index
+        sheet = Test_Set.sheet_by_index(0)  # Accès au premier onglet du tableau Excel
+        return sheet
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         logging.info("Chargement fichier JLPT:" + str(self.file_name[0]) + "réussi.")
 
 
-
 if __name__ == '__main__':
 
-    with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
+    with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet): 
         print("Chargement SCL ok")  # str(self.T_LoadSCL))
 
+    Test = Test_JLPT(JLPT_TestSet)
+    Test.TestPart()
 
 
-    print('Fin chargement Excel')
 

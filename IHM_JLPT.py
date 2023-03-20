@@ -13,24 +13,17 @@ import logging
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget, QVBoxLayout, QCheckBox
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QGridLayout, QRadioButton
 from PyQt5.QtWidgets import QFileDialog, QWidget, QPushButton, QFrame, QMessageBox, QDialog
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PyQt5.Qt import QStandardItem, Qt, QImage, QPixmap
+from PyQt5.QtWidgets import QButtonGroup
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem,QTableWidget,QTableWidgetItem
+from PyQt5.Qt import QStandardItem, Qt, QImage, QPixmap,QStandardItemModel
 from PyQt5.QtGui import QFont, QColor, QIcon
 
+from IEC_load import Test_JLPT, LoadExcel
 
 
-IED_LD, TYPE, VALUE, DESC, DESC2 = range(5)
 
-# TODO : faire une classe pour l'accès au fichier SCL (nom du poste, répertoire, nom du SCL...
-# TODO : faire une classe pour le fichier XML de campagne de test (nom de la campagne, répertoire, nom du XML...)
+property# TODO : faire une classe pour le fichier XML de campagne de test (nom de la campagne, répertoire, nom du XML...)
 
-
-# Test case pas défauts
-DefaultSteps = [['PreCondition', 'Vérifications préalables'],
-                ['Présence LN et DO', 'Analyse des LN présents'],
-                ['TestNominal', 'Test fonctionnel nominal'],
-                ['TestPerformance', 'Vérification des temps critiques'],
-                ['ProductionRapport', 'Création rapport du test']]
 
 
 ## \b SCL_FileName:  classe pour définir l'accès au SCL.
@@ -131,42 +124,64 @@ class MainWindow(QMainWindow):
 
             self.winLayout.addLayout(self.LoadingButtons())  # Top application button (TEMPLATE, SELECT FILE)
 
+            with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
+                print("Chargement SCL ok")  # str(self.T_LoadSCL))
+
+            X  = Test.TestPart()
             self.descLayout, self.descBox = self.DescriptionBox()
             self.winLayout.addLayout(self.descLayout)
 
-            self.ButtonSection, self.frameBottom = self.BottomButtons()
-
-            self.containerLayout = QHBoxLayout()  # Container for 2 vertical layout
-            self.containerLayout.addLayout(self.ButtonSection)  # Set of buttons on the LEFT
-            self.containerLayout.addWidget(self.frameBottom)  # Set the frame
-            self.setLayout(self.winLayout)
-
-            self.treeView = QTreeWidget()
-            # self.treeView.setHeaderLabels(['    Bay       IED    LD    Steps ', 'Simu', 'Description', 'IP/ldName'])
-            self.treeView.headerItem().setText(0, "Question")
-            self.treeView.headerItem().setText(1, "-- A -- ")
-            self.treeView.headerItem().setText(2, "-- B -- ")
-            self.treeView.headerItem().setText(3, "-- C -- ")
-            self.treeView.headerItem().setText(4, "-- D -- ")
-            self.treeView.headerItem().setText(5, " Choice ")
-            self.treeView.headerItem().setText(6, " Result ")
-
+            self.tableView = QTableWidget()
+            self.tableView.setColumnCount(6)
+            self.tableView.setHorizontalHeaderLabels(('Topic', 'Choix 1', 'Choix 2', 'Choix 3', 'Choix 4s', 'Result'))
             Answer_size = 80
-            
-            self.treeView.setColumnWidth(0, 250)
-            self.treeView.setColumnWidth(1, Answer_size)
-            self.treeView.setColumnWidth(2, Answer_size)
-            self.treeView.setColumnWidth(3, Answer_size)
-            self.treeView.setColumnWidth(4, Answer_size)
-            self.treeView.setColumnWidth(5, Answer_size)
-            self.treeView.setColumnWidth(6, Answer_size)
-            self.winLayout.addWidget(self.treeView)
 
-            self.winLayout.addLayout(self.containerLayout)
+
+
+            self.tableView.setColumnWidth(0, 250)
+            self.tableView.setColumnWidth(1, Answer_size)
+            self.tableView.setColumnWidth(2, Answer_size)
+            self.tableView.setColumnWidth(3, Answer_size)
+            self.tableView.setColumnWidth(4, Answer_size)
+            self.tableView.setColumnWidth(5, Answer_size)
+            self.tableView.setColumnWidth(6, Answer_size)
+            self.tableView.setRowCount(4)
+            self.winLayout.addWidget(self.tableView)
+
+            self.lstButton = []
+            X1 = self.affiche_test(1, self.lstButton, " １．しゃ", "２．くるま", "３．ちゃ", "４．くろま")
+            X2 = self.affiche_test(2, self.lstButton, "１．しゃxx", "２．くるま", "３．ちゃ", "４．くろま")
+            X3 = self.affiche_test(3, self.lstButton, "１．しゃyy", "２．くるま", "３．ちゃ", "４．くろま")
+            TestSet = [X2, X2, X3]
+
+        def affiche_test(self, ligne, lstButton, text1, text2, text3, text4):
+            buttonLayout = QHBoxLayout()
+            Reponse1 = QRadioButton(text1)
+            Reponse2 = QRadioButton(text2)
+            Reponse3 = QRadioButton(text3)
+            Reponse4 = QRadioButton(text4)
+
+            buttonGroup = QButtonGroup()
+            buttonGroup.addButton(Reponse1)
+            buttonGroup.addButton(Reponse2)
+            buttonGroup.addButton(Reponse3)
+            buttonGroup.addButton(Reponse4)
+            buttonLayout.addWidget(Reponse1)
+            buttonLayout.addWidget(Reponse2)
+            buttonLayout.addWidget(Reponse3)
+            buttonLayout.addWidget(Reponse4)
+            # Row count
+            # Column count
+            self.tableView.setCellWidget(ligne, 1, Reponse1)
+            self.tableView.setCellWidget(ligne, 2, Reponse2)
+            self.tableView.setCellWidget(ligne, 3, Reponse3)
+            self.tableView.setCellWidget(ligne, 4, Reponse4)
+#            self.winLayout.addLayout(self.containerLayout)
+#            １．しゃ ２．くるま ３．ちゃ ４．くろま
             self.setLayout(self.winLayout)
             self.show()
-            if _TestMode:
-                self.CreationCampagne(True)
+            lstButton.append(buttonGroup)
+            return lstButton
 
         ## Chargement SCL, Campagne, Lancement Test
         def LoadingButtons(self) -> QHBoxLayout:
@@ -182,23 +197,34 @@ class MainWindow(QMainWindow):
             hLayout.addWidget(RteTitle)
 
             # Bouton Création de campagne ==> chargement d'une SCL
-            Part1 = ButtonText(" 問題Ⅰ＿＿＿のことばはどうよみますか。\n １２３４からいちばんいいものをひとつ からいちばんいいものをひとつ えらびなさい。")
+            Part1 = ButtonText("     問題Ⅰ    \n ＿＿＿のことばはどうよみますか。") #\n １２３４からいちばんいいものをひとつ からいちばんいいものをひとつ えらびなさい。")
+            Part1.setToolTip("１２３４からいちばんいいものをひとつ からいちばんいいものをひとつ えらびなさい。")
 
-            Part1.clicked.connect(self.CreationInitiale)
+            Part1.clicked.connect(self.TestPart1)
             hLayout.addWidget(Part1)
 
             # Bouton chargement d'une campagne de test (créer initialement via "Création campagne')
-            Part2 = ButtonText(" 問題Ⅱ ＿＿＿のことばはどうかきますか。\n １２３４からいちばんいいものをひと からいちばんいいものをひと つえらびなさい。")
-            Part2.clicked.connect(self.ChargerCampagne)
+            Part2 = ButtonText("      問題Ⅱ    \n＿＿＿のことばはどうかきますか。")
+            Part2.setToolTip("\n１２３４からいちばんいいものをひと からいちばんいいものをひと つえらびなさい。")
+            Part2.clicked.connect(self.TestPart2)
             hLayout.addWidget(Part2)
 
             #  Bouton de lancement des tests sur la base de la campagne affichée.
-            Part3 = ButtonText(" 問題Ⅲ ______のところになにをいれますか。\n １２３４からいちばんいいものをひ からいちばんいいものをひ とつえらびなさい")
-            Part3.clicked.connect(self.LanceCampagne)
+            Part3 = ButtonText("      問題Ⅲ  \n______のところになにをいれますか。")
+            Part3.setToolTip("１２３４からいちばんいいものをひ からいちばんいいものをひ とつえらびなさい")
+            Part3.clicked.connect(self.TestPart3)
             hLayout.addWidget(Part3)
 
             ## Add horizontal layout of buttons to the grid layout.
             return hLayout
+        def TestPart1(self):
+            print('Accès partie1')
+
+        def TestPart2(self):
+            print('Accès partie2')
+
+        def TestPart3(self):
+            print('Accès partie3')
 
         # Boit de dialogue pour décrire l'objet de la campagne, ces caractéristiques.
         def DescriptionBox(self) -> (QHBoxLayout, QLineEdit):
@@ -219,160 +245,10 @@ class MainWindow(QMainWindow):
         #   * la création des anomalies, pour les tests échouées...
         def BottomButtons(self): # -> QHBoxLayout, QFrame:
 
-            Left_frame = QFrame(self)
-            Left_frame.setLineWidth(4)
-            Left_frame.setStyleSheet("background-color: rgb(200, 255, 255)")
-            Left_frame.setStyleSheet("foreground-color: blue;\n")
-            Left_frame.setFrameStyle(QFrame.Box | QFrame.Sunken)
-
-            LeftButtons = QHBoxLayout(Left_frame)
-            LeftButtons.addWidget(Left_frame)
-
-            ## Check Value Button
-            DataModel = ButtonText(' Enregister Campagne ')
-            DataModel.clicked.connect(self.EnregistrerCampagne)
-            LeftButtons.addWidget(DataModel)
-
-            ##  Template Generation Button
-            TbD1 = ButtonText(' à définir (commit?) ')
-            TbD1.clicked.connect(self.GenerateTemplate)
-            LeftButtons.addWidget(TbD1)
-
-            ##  Open File  Button
-            TbD2 = ButtonText(' à définir (résultats ?) ')
-            TbD2.clicked.connect(self.Adefinir2)
-            LeftButtons.addWidget(TbD2)
-
-            return LeftButtons, Left_frame
-
-        #   Chargement d'un fichier pour créer une campagne initiale,
-        #   et enregistrement de la campagne en question.
-        #
-        #  @param: modeTest, permet d'exploiter UnitTest:
-        #
-        def CreationInitiale(self, modeTest=False):
-            logging.info("Création Campagne (==> Chargement SCL ")
-            self.initial = True
-
-            time1 = time.time()
-
-            if modeTest:  # Pour permettre à la suite de test (py_test) de tester IHM_campagne.
-                self.fname = ('Lot9_outils/SCL_files/SCD_SITE_20200928.scd', "")
-            else:
-                self.fname = QFileDialog.getOpenFileName(self, 'Open file', 'SCL_files\*.*', " IEC61850 files")
-
-            with LoadSCL("JLPT_3_ESSAI_2003.xls", False ,True) as (self.SCL_DATA):  # Les données des IED ne sont pas chargé
-                logging.info("Chargement SCL initial:")  # Seul les IED concernés par la campagne seront chargés.
-
-            pathSplit = self.fname[0].split(os.sep)  #
-            NbRepertoire = len(pathSplit)  #
-
-            self.SCL_loaded = SCL_FileName(pathSplit[NbRepertoire - 1], pathSplit[NbRepertoire - 2])
-
-            time2 = time.time()
-            delta1 = time2 - time1
-            logging.info((' Temps pour charger le fichier SCL', delta1))
-
-            self.sclMgr = self.SCL_DATA.sclMgr
-            self.DataTypes = self.SCL_DATA.DataType
-            self.tComm = self.SCL_DATA.tComm
-            self.Utils = IEC_Utils(self.SCL_DATA)
-            self.tIEDnames = self.sclMgr.get_IED_names_list()
-
-            time3 = time.time()
-            delta2 = time3 - time2
-            logging.info((' Temps pour charger le fichier SCL hors IED', delta2))
-
-            time4 = time.time()
-            delta3 = time4 - time3
-            logging.info((' Temps pour charger le fichier SCL hors IED', delta3))
-
-            self.SCL_charge = True
-            self.CreationCampagne()
-
-        # \b ChargerCampagne:  Charge un fichier XML de description de campagne existant, permet de modifier
-        #                   la campagne et de "l'exécuter".
-        #  Le nom du fichier SCL de référence est dans la campagne.
-        # TODO :
-        def ChargerCampagne(self, _fileName=None, modeTest=False):
-            logging.info("ChargerCampagne")
-
-            with Load_Excel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
-                print("Chargement SCL ok")  # str(self.T_LoadSCL))
+            return 
 
 
-            #  TODO traiter le cas d'échec           if xmlCampagne is not None:
-            #                self.Campagne_charge = True
-
-            idxStation = 0
-            self.treeView.clear()
-            stationNameSet = False
-            for item in list(xmlCampagne):
-
-                if item.tag == 'ConfigFiles':
-                    for File in list(item):
-                        fType = File.get('type')
-                        if fType == "SCL" and self.SCL_charge == False:
-                            _SCLpath = File.get('path')
-                            SCLpath = FileSupport.encodeName(_SCLpath)     # convert '/' ==> '\' or '\' ==> '/'
-                            SCLsha = File.get('sha')
-
-                            with LoadSCL(SCLpath, True, True) as (
-                                    self.SCL_DATA):  # Les données des IED ne sont pas chargé
-                                logging.info(
-                                    "Chargement du SCL via le chargement de la campagne:")  # Seul les IED concernés par la campagne seront chargés.
-
-                            self.sclMgr = self.SCL_DATA.sclMgr
-
-                        if fType == 'u-test-bench':
-                            UTESTpath = File.get('path')
-                            TESTsha = File.get('sha')
-# TODO affiché la description
-                if item.tag == 'Description':
-                    self.descBox.setPlaceholderText(item.get('text'))
-
-                if item.tag == 'Substation':
-                    name = item.get('name')
-                    voltage = item.get('Voltage')
-                    if stationNameSet == False:     ## Le nom du répertoire et du fichier est le nom de la première 'Substation'
-                        stationNameSet = True
-                        self.StationName = name
-
-                    self.Station = QTreeWidgetItem(self.treeView)
-                    self.Station.setText(0, name + '( ' + voltage + ' )')
-                    self.Poste.append(self.Station)  # = self.addStation(self.Station, name, voltage)
-
-                    for bay in list(item):
-                        Bay = self.addBay(self.Poste[idxStation], bay.get('name'), bay.get('test'))
-                        for ied in list(bay):
-                            IED = self.addIED(Bay, ied.get('name'), ied.get('simulated'))
-
-                            if ied.get('test') == 'True':
-                                IED.setCheckState(0, Qt.Checked)
-                            else:
-                                IED.setCheckState(0, Qt.Unchecked)
-
-                            if ied.get('simulated') == 'True':
-                                IED.setCheckState(1, Qt.Checked)
-                            else:
-                                IED.setCheckState(1, Qt.Unchecked)
-
-                            for iLD in list(ied):
-                                LD = self.addLD(IED, iLD.get('inst'), iLD.get('test'), iLD.get('desc'))
-
-                                LastSteps = len(list(iLD))
-                                numStep = 0
-                                for iStep in list(iLD):
-                                    toTest = (iStep.get('test') == 'True')
-                                    self.addStep(LD, numStep, len(list(iLD)), toTest, iStep.get('name'), iStep.get(
-                                        'desc'))  # iLD.attrib['test'], iStep.attrib['name'], iStep.attrib['desc'])
-
-                                    numStep = numStep + 1
-
-                    idxStation = idxStation +1
-
-
-        # détermine le chemein dans l'arbre Tranche/IED/LD/Steps pour faire les modifications.
+       # détermine le chemein dans l'arbre Tranche/IED/LD/Steps pour faire les modifications.
         def getPath(self, indexes):
 
             if indexes is None or len(indexes) == 0:
@@ -407,111 +283,9 @@ class MainWindow(QMainWindow):
         # @param posteName: Nom du poste dans la balise du XML de campagne
         # @param Voltage:  Niveau de tension du poste
 
-        def addStation(self, poste: QTreeWidgetItem, posteName: str, Voltage: str):
-            Station = QTreeWidgetItem(poste)
-            Station.setText(0, posteName + ' (' + Voltage + ')')
-            return Station
-
-        # \b addStation:  Ajoute une tranche à la sous-station dans l'arborescence de la campagne.
-        #
-        # @param Station: Objet graphique qui décrit la sous-station (héritage arborescent)
-        # @param bayName: Nom de la tranche (issu du SCL)
-        # @param bayTest:  Booléen pour activer ou désactiver le test de la tranche (héritage en cascade)
-        def addBay(self, Station: QTreeWidgetItem, bayName: str, bayTest: str):
-            Bay = QTreeWidgetItem(Station)
-            Bay.setText(0, bayName)
-            Bay.setFlags(Bay.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsTristate)
-            if bayTest == 'True':
-                Bay.setCheckState(0, Qt.Checked)
-            else:
-                Bay.setCheckState(0, Qt.Unchecked)
-
-            self.tGraphicalBay.append(Bay)
-            setattr(Bay, 'tIED', [])
-            return Bay
-
-        # \b addIED:  Ajoute un IED à la tranche dans l'arborescence de la campagne.
-        #
-        # @param Bay: Objet graphique qui décrit la tranche (héritage arborescent)
-        # @param iedName: Nom de l'IED (issu du SCL)
-        # @param simulated:  Booléen pour activer ou désactiver la simulation de l'IED
-
-        def addIED(self, Bay: QTreeWidgetItem, iedName: str, simulated: str):
-            IP_Adresse, AP_Name = self.sclMgr.get_IP_Adr(iedName)
-
-            IED = QTreeWidgetItem(Bay)
-            IED.setText(0, iedName)
-            IED.setFlags(Bay.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsTristate)
-
-            hLayout = QHBoxLayout()
-            button = QCheckBox("Simulé")
-            hLayout.addWidget(button)
-            SimuButton = QWidget()
-            SimuButton.setLayout(hLayout)
-            self.treeView.setItemWidget(IED, 1, SimuButton)
-
-            setattr(IED, 'Simu', button)
-            IED.setText(2, "")
-            IED.setText(3, IP_Adresse)
-
-            setattr(IED, 'tLD', [])
-            return IED
-
-        # \b addLD:  Ajoute un LD à l'IED dans l'arborescence de la campagne.
-        #
-        # @param Bay: Objet graphique qui décrit la tranche (héritage arborescent)
-        # @param inst: Nom du LD (issu du SCL, pour le LD c'est l'attribut 'inst' qui donne le nom...)
-        # @param desc: Description du LD, issu du SCL
-        # @param test:  Booléen pour activer ou désactiver le test du LD
-        def addLD(self, IED: QTreeWidgetItem, inst: str, desc: str, test: str = 'True'):
-            LD = QTreeWidgetItem(IED)
-            LD.setFlags(IED.flags() | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
-            if test == 'True':
-                LD.setCheckState(0, Qt.Checked)  #
-            else:
-                LD.setCheckState(0, Qt.Unchecked)  #
-
-            LD.setText(0, inst)
-            LD.setText(1, '')
-            LD.setText(2, desc)
-            IED.tLD.append(LD)
-            return LD
-
-        # \b addStep:  Ajoute un Step de test au LD dans l'arborescence de la campagne.
-        #
-        # @param LD: Objet graphique qui décrit le Logical Device (héritage arborescent)
-        # @param numStep: indice du Step de 1  à totalStep
-        # @param totalStep: nombre total de pas de test.
-        # @param toTest:  Booléen pour activer ou désactiver le test.
 
 
-        def addStep(self, LD: QTreeWidgetItem, numStep: int, totalStep: int, toTest: bool, stepName: str, stepDesc: str):
-            Step = QTreeWidgetItem(LD)
 
-            Step.setFlags(LD.flags() | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
-
-            if toTest is True:
-                Step.setCheckState(0, Qt.Checked)  #
-            else:
-                Step.setCheckState(0, Qt.Unchecked)  #
-            Step.setText(0, stepName)
-            Step.setText(1, '')
-            Step.setText(2, stepDesc)
-            self.dualPushButtons = QWidget()
-            # LAYOUT DES BOUTONS
-            self.hLayout = QHBoxLayout()
-            self.addButton = QPushButton(" + ")
-            self.addButton.clicked.connect(self.ajouteStep)
-            self.hLayout.addWidget(self.addButton)
-
-            if numStep > 0 and numStep < (totalStep - 1):
-                self.removeButton = QPushButton(" - ")
-                self.removeButton.clicked.connect(self.retireStep)
-                self.hLayout.addWidget(self.removeButton)
-
-            self.dualPushButtons.setLayout(self.hLayout)
-            #                            self.dualPushButtons.
-            self.treeView.setItemWidget(Step, 1, self.dualPushButtons)
 
         ## \b CreationCampagne:  Affiche graphique du SCL limité à POSTE / Tranche /IED / LD/ Steps.
         #                        permet la sélection des objets à tester et l'enregistrement d'une campange "instanciée".
@@ -520,56 +294,7 @@ class MainWindow(QMainWindow):
         #
         def CreationCampagne(self, initial=True):
 
-
-            self.tStation = self.Utils.SCL_getStation()
             self.treeView.clear()
-
-            mainStation = self.tStation[0]
-            self.StationName = mainStation[0]
-
-            for iStation in self.tStation:
-                name     = iStation[0]
-                voltage  = iStation[1]
-                self.tBay = self.Utils.XML_getBayList(name)  # Récupère les Tranches et leurs IED
-                if self.tBay is None:
-                    msg = QMessageBox()
-                    msg.setWindowTitle("Erreur de dans le SCL")
-                    msg.setText(" La section Substation est absente")
-                    return
-
-                self.Station = QTreeWidgetItem(self.treeView)
-                self.Station.setText(0, name + '( ' + voltage + ' )')
-                self.Poste.append(self.Station) # = self.addStation(self.Station, name, voltage)
-
-                logging.info("Création de la campagne par défaut")
-
-                for iBay in self.tBay:
-                    Bay = self.addBay(self.Station, iBay.name, 'True')
-                    logging.info((' Chargement graphique BAY', iBay.name))
-
-                    for iedName in self.tIEDnames:  # iBay.iedList:
-                        #                        logging.info((' IED TG', iBay.name, iedName))
-                        if iedName.endswith(iBay.name):
-                            IED = self.addIED(Bay, iedName, "True")
-                        elif (iBay.name == 'SITE1') and (iedName in ['TG', 'TOPO', 'GRP']):
-                            IED = self.addIED(Bay, iedName, "True")
-                        else:
-                            continue
-
-                        iIED = self.sclMgr.get_IED_by_name(iedName)
-                        if iIED is None:
-                            logging.info((' IED non trouvé: BayName', iBay.name, 'IedName:', iedName))
-                            continue
-                        Srv = self.Utils.getServer(iIED)
-                        if Srv is None:
-                            logging.info((' IED non trouvé: BayName', iBay.name, 'IedName:', iedName))
-                            continue
-                        for iLD in Srv.get_children('LDevice'):
-                            LD = self.addLD(IED, iLD.inst, iLD.desc, 'True')  # par defaut un LD doit être testé.
-                            numStep = 0
-                            for iStep in DefaultSteps:
-                                Step = self.addStep(LD, numStep, len(DefaultSteps), True, iStep[0], iStep[1])
-                                numStep = numStep + 1
 
             logging.info('Fin Chargement graphique.')
             self.treeView.expandAll()
@@ -646,185 +371,24 @@ class MainWindow(QMainWindow):
 
             #        sys.exit(app.exec_())
 
-        ## \b Confirm:  Enregistre/confirme la création du pas de test
-        #
-        def Confirm(self):
-            logging.info("Confirm")
-            self.Nom = self.NomTest.text()
-            self.Description = self.Description.text()
-            if self.ActiveTest.isChecked():
-                self.Active = 'True'
-            else:
-                self.Active = 'False'
-
-            logging.info('Nom:' + self.Nom + ' Active:' + self.Active + ' description: ' + self.Description)
-            self.dialog.close()
-
-        ## \b Confirm:  Annulle la création du pas de test
-        #
-        def Abort(self):
-            logging.info("Confirm")
-            return None, None, None
-
-        def Adefinir1(self):
-            logging.info('bouton à définir 1')
-            return
-
-        def Adefinir2(self):
-            logging.info('bouton à définir 2')
-            return
-
-        def checkStatus(self, item, column: int) -> None:
-            logging.info("checkStatus", item, column)
-
-            if column == 0:
-
-                for bay in self.tGraphicalBay:
-                    if bay == item:
-                        if item.checkState(0) == Qt.Checked:  # Bay selectionné ?
-                            for ied in bay.tIED:
-                                ied.setCheckState(0, Qt.Checked)
-                                for iLD in ied.tLD:
-                                    iLD.setCheckState(0, Qt.Checked)
-                        else:
-                            for ied in bay.tIED:
-                                ied.setCheckState(0, Qt.Unchecked)
-                                for iLD in ied.tLD:
-                                    iLD.setCheckState(0, Qt.Unchecked)
-                        return
-
-                    for ied in bay.tIED:
-                        if ied == item:
-                            for iLD in ied.tLD:
-                                iLD.setCheckState(0, item.checkState(0))
-                            return
-            else:
-                logging.info("Some field edited...")
-
-        def indexOfItem(self, item: QTreeWidgetItem) -> int:
-            index = 0
-            parent = item.parent()
-            if parent is not None:
-                index = index + parent.indexOfChild(item) + 1 + self.indexOfItem(parent)
-            return index
-
-        # \b ajouteStep:  gère l'ajout d'un step de test (boite de dialogue)
-        def ajouteStep(self):
-
-            indexes = self.treeView.selectedIndexes()
-            if indexes is None or len(indexes) == 0:
-                return
-
-            path = self.getPath(indexes)
-            stepName, stepActive, stepDesc = self.DialogueTestStep()
-            self.InsertStep(path, stepName, stepActive, stepDesc)
-
-        # \b retireStep:  gère la supression d'un step de test (boite de dialogue)
-        def retireStep(self):
-
-            currNode = self.treeView.currentItem()
-            parent1 = currNode.parent()
-            parent1.removeChild(currNode)
-
-        # \b InsertStep:  insertion des objets Qt qui représente un step de test.
-        def InsertStep(self, path: str, stepName: str, stepActive: str, stepDesc: str):
-
-            logging.info("InsertStep: " + path + stepName + stepActive + stepDesc)
-
-            bayIEDld = path.split('.')
-            StationName=bayIEDld[0]    # Sous Station
-            bayName = bayIEDld[1]
-            iedName = bayIEDld[2]
-            ldName = bayIEDld[3]
-            stepInsertName = bayIEDld[4]
-
-            idxStation = 0
-            for Station in self.Poste:
-
-                if Station.text(0) == StationName:
-                    bay = Station.child(idxStation)
-
-                    for i in range(0,Station.childCount()):       # Looking The bay
-                        iBay = Station.child(i)
-                        if iBay.text(0) != bayName:
-                            continue
-                        else:
-                            for j in range(0, iBay.childCount()):
-                                iIED = iBay.child(j)
-                                if iIED.text(0)!= iedName:
-                                    continue
-                                else:
-                                    for k in range(0,iIED.childCount()):
-                                        iLD = iIED.child(k)
-                                        if iLD.text(0) != ldName:
-                                            continue
-                                        else:
-                                            for l in range(0, iLD.childCount()):
-                                                iStep = iLD.child(l)
-                                                if iStep.text(0) != stepInsertName:
-                                                    continue
-                                                else:
-                                                    logging.info('Step:' + iStep.text(0)  + iStep.text(0)  + iStep.text(0)  )
-                                                    self.AddStep(iLD,  stepName, stepActive, stepDesc)
-                                                    return
-                                                    break
 
 
-        def AddStep(self, childLD: QTreeWidgetItem, name: str, desc: str, test: str):
-            logging.info("AddStep: " + name + " ," + desc + " ," + test)
-            x = self.treeView.currentItem()
-            y = self.treeView.currentIndex()
-            Y2 = y.row()  # rangée courrante
-
-            childStep = QTreeWidgetItem()  # (Pas d'héritage) !!!Item pour les cases à cocher
-            childStep.setFlags(childLD.flags() | Qt.ItemIsTristate | Qt.ItemIsUserCheckable)
-            childLD.insertChild(Y2 + 1, childStep)
-
-            self.dualPushButtons = QWidget()
-
-            childStep.setText(0, name)
-            childStep.setText(2, test)
-            childStep.setText(3, desc)
-            # Bouton pour ajouter et retirer des Steps de tests:
-            self.hLayout = QHBoxLayout()
-
-            self.addButton = QPushButton(" + ")
-            self.hLayout.addWidget(self.addButton)
-            self.addButton.clicked.connect(self.ajouteStep)
-
-            self.hLayout.addWidget(self.removeButton)
-            self.removeButton = QPushButton(" - ")
-            self.removeButton.clicked.connect(self.retireStep)
-            self.dualPushButtons.setLayout(self.hLayout)
-            if test == 'True':
-                childStep.setCheckState(0, Qt.Checked)  #
-            else:
-                childStep.setCheckState(0, Qt.Unchecked)  #
-
-            self.treeView.setItemWidget(childStep, 1, self.dualPushButtons)
-            #            self.treeView.setItemWidget(childStep, 1, dualPushButtons)
-            X = self.treeView.currentItem()
-
-        def retireStep(self):
-
-            x = self.treeView.currentItem()
-            y = self.treeView.currentIndex()
-            Y2 = y.row()  # rangée courranted
-
-            currNode = self.treeView.currentItem()
-            parent1 = currNode.parent()
-            parent1.removeChild(currNode)
-
-        def GenerateTemplate(self):
-            print('GenerateTemplate')
 
 
 
 if __name__ == '__main__':
 
+
+    with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet): 
+        print("Chargement SCL ok")  # str(self.T_LoadSCL))
+
+    Test = Test_JLPT(JLPT_TestSet)
+    TestSet = Test.TestPart()
+
+
     print('xxxxxxxx')
     app = QApplication(sys.argv)
-    Win = MainWindow("toto")
+    Win = MainWindow(JLPT_TestSet)
     demo = Win.AppDemo(False)
     demo.show()
     sys.exit(app.exec_())
