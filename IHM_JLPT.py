@@ -19,7 +19,10 @@ from PyQt5.Qt import QStandardItem, Qt, QImage, QPixmap,QStandardItemModel
 from PyQt5.QtGui import QFont, QColor, QIcon
 
 from IEC_load import Test_JLPT, LoadExcel
+<<<<<<< HEAD
 
+=======
+>>>>>>> 15b61b123c588a8697404352d334b74bd3d16c93
 
 
 property# TODO : faire une classe pour le fichier XML de campagne de test (nom de la campagne, répertoire, nom du XML...)
@@ -127,6 +130,7 @@ class MainWindow(QMainWindow):
             with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
                 print("Chargement SCL ok")  # str(self.T_LoadSCL))
 
+<<<<<<< HEAD
             X  = Test.TestPart()
             self.descLayout, self.descBox = self.DescriptionBox()
             self.winLayout.addLayout(self.descLayout)
@@ -136,8 +140,18 @@ class MainWindow(QMainWindow):
             self.tableView.setHorizontalHeaderLabels(('Topic', 'Choix 1', 'Choix 2', 'Choix 3', 'Choix 4s', 'Result'))
             Answer_size = 80
 
+=======
+            self.descLayout, self.descBox = self.DescriptionBox()
+            self.winLayout.addLayout(self.descLayout)
+
+#            self.containerLayout = QHBoxLayout()  # Container for 2 vertical layout
+#            self.containerLayout.addLayout(self.ButtonSection)  # Set of buttons on the LEFT
+#            self.containerLayout.addWidget(self.frameBottom)  # Set the frame
+#            self.setLayout(self.winLayout)
+>>>>>>> 15b61b123c588a8697404352d334b74bd3d16c93
 
 
+<<<<<<< HEAD
             self.tableView.setColumnWidth(0, 250)
             self.tableView.setColumnWidth(1, Answer_size)
             self.tableView.setColumnWidth(2, Answer_size)
@@ -182,6 +196,23 @@ class MainWindow(QMainWindow):
             self.show()
             lstButton.append(buttonGroup)
             return lstButton
+=======
+            Answer_size = 80
+            
+            self.treeView.setColumnWidth(0, 250)
+            self.treeView.setColumnWidth(1, Answer_size)
+            self.treeView.setColumnWidth(2, Answer_size)
+            self.treeView.setColumnWidth(3, Answer_size)
+            self.treeView.setColumnWidth(4, Answer_size)
+            self.treeView.setColumnWidth(5, Answer_size)
+            self.treeView.setColumnWidth(6, Answer_size)
+            self.winLayout.addWidget(self.treeView)
+
+#            self.winLayout.addLayout(self.containerLayout)
+            self.setLayout(self.winLayout)
+            self.show()
+
+>>>>>>> 15b61b123c588a8697404352d334b74bd3d16c93
 
         ## Chargement SCL, Campagne, Lancement Test
         def LoadingButtons(self) -> QHBoxLayout:
@@ -374,16 +405,11 @@ class MainWindow(QMainWindow):
 
 
 
-
-
-if __name__ == '__main__':
-
-
     with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet): 
         print("Chargement SCL ok")  # str(self.T_LoadSCL))
 
     Test = Test_JLPT(JLPT_TestSet)
-    TestSet = Test.TestPart()
+    Test.TestPart()
 
 
     print('xxxxxxxx')
