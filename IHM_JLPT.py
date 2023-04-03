@@ -79,7 +79,6 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self, parent)
 
 
-
     ## \b AppDemo:  Application dans la fenêtre
     #
     #
@@ -90,6 +89,11 @@ class MainWindow(QMainWindow):
             self.setWindowTitle('JLPT TEST')
 
             self.DataJLPT = _DataJLPT
+
+            for Question in _DataJLPT:
+                print('Question:' + Question.text)
+                for subQuestion in Question.subQuestion:
+                    print('subQuestion:' + subQuestion)
 
 #            RteIcon = QImage('images/rteLogo.png')
 #            self.setWindowIcon(QIcon(QPixmap.fromImage(RteIcon)))

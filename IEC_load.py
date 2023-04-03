@@ -99,7 +99,7 @@ class Test_JLPT:
                         break
                 continue
         except IndexError:
-            print('Fin du ficher')
+             print('Fin du ficher')
         return GlobalList
 
 
