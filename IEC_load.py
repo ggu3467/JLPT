@@ -58,8 +58,9 @@ class Test_JLPT:
             JLPT_Part1 = JLPT_Section(T1, 1991, 'Level4')
             self.Part1, self.lineIndex = self.ParseTest(JLPT_Part1, self.lineIndex)
 
-            #            JLPT_Part2 = JLPT_Section(T1, 1991, 'Level4')
-            #            self.Part2, self.lineIndex = self.ParseTest(JLPT_Part1, self.lineIndex)
+            T2 = self.sheet.cell_value(self.lineIndex, self.TestSection)
+            JLPT_Part2 = JLPT_Section(T2, 1991, 'Level4')
+            self.Part2, self.lineIndex = self.ParseTest(JLPT_Part2, self.lineIndex)
 
             #            JLPT_Part3 = JLPT_Section(T1, 1991, 'Level4')
             #            self.Part3, self.lineIndex = self.ParseTest(JLPT_Part1, self.lineIndex)
@@ -68,35 +69,38 @@ class Test_JLPT:
 
 
     def ParseTest(self, JLPT_Part1: JLPT_Section, lineIndex: int):
-        lineIndex = 2  # Sinon pointe sur '問題'
+        lineIndex = lineIndex + 1
         GlobalList=[]
         JLP_question = Question('xxx', [])
         _SubQuestion = ''
-        while True:
-            _question = self.sheet.cell_value(lineIndex, self.TestQuestion)
-            if _question.startswith('問'):
-                print('****** Question : ', _question + ' ' + str(self.lineIndex))
-                JLP_question = Question(_question, [])
-                lineIndex = lineIndex + 1
-                _SubQuestion = self.sheet.cell_value(lineIndex, self.TestProposition)
-            else:
-#                _SubQuestion.append(_SubQuestion) # '問1・ 車の中に男の子が何人いますか。'
-                while _SubQuestion.startswith('（'):
-                    JLP_question.subQuestion.append(_SubQuestion)
-                    print('SubQuestion : ', _SubQuestion + ' ' + str(lineIndex))
+        try:
+            while True:
+                _question = self.sheet.cell_value(lineIndex, self.TestQuestion)
+                if _question.startswith('問'):
+                    print('****** Question : ', _question + ' ' + str(self.lineIndex))
+                    JLP_question = Question(_question, [])
                     lineIndex = lineIndex + 1
                     _SubQuestion = self.sheet.cell_value(lineIndex, self.TestProposition)
+                else:
+    #                _SubQuestion.append(_SubQuestion) # '問1・ 車の中に男の子が何人いますか。'
+                    while _SubQuestion.startswith('（'):
+                        JLP_question.subQuestion.append(_SubQuestion)
+                        print('SubQuestion : ', _SubQuestion + ' ' + str(lineIndex))
+                        lineIndex = lineIndex + 1
+                        _SubQuestion = self.sheet.cell_value(lineIndex, self.TestProposition)
 
-                _question = self.sheet.cell_value(lineIndex, self.TestQuestion)
-                GlobalList.append(JLP_question)
-                if _question.startswith('問'):
-                    continue
-                _Chapitre = self.sheet.cell_value(lineIndex, 0)
-                if _Chapitre.startswith('問題'):
-                    return JLP_question, lineIndex
-                    break
-            continue
-        return JLP_question
+                    _question = self.sheet.cell_value(lineIndex, self.TestQuestion)
+                    GlobalList.append(JLP_question)
+                    if _question.startswith('問'):
+                        continue
+                    _Chapitre = self.sheet.cell_value(lineIndex, 0)
+                    if _Chapitre.startswith('問題'):
+                        return GlobalList, lineIndex
+                        break
+                continue
+        except IndexError:
+            print('Fin du ficher')
+        return GlobalList
 
 
 ## \b LoadSCL:  classe générique pour charger un fichier SCL au niveau fichier et au niveau.
