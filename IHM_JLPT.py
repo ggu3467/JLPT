@@ -78,23 +78,24 @@ class MainWindow(QMainWindow):
     def __init__(self,  _DataJLPT, parent=None):
         QMainWindow.__init__(self, parent)
 
-        self.DataJLPT= _DataJLPT
+
 
     ## \b AppDemo:  Application dans la fenêtre
     #
     #
     class AppDemo(QWidget):
 
-        def __init__(self, _TestMode: bool = False):
+        def __init__(self, _DataJLPT):
             super().__init__()
             self.setWindowTitle('JLPT TEST')
+
+            self.DataJLPT = _DataJLPT
 
 #            RteIcon = QImage('images/rteLogo.png')
 #            self.setWindowIcon(QIcon(QPixmap.fromImage(RteIcon)))
 
             self.line = 0
             self.dataKey = ''
-            self.TestMode = _TestMode
 
             self.fCampaign = ''
 
@@ -103,11 +104,6 @@ class MainWindow(QMainWindow):
 
             self.Name = None  # Nome du poste de la campagne chargée
             self.initial = True
-            self.SCL_charge = False
-            self.Poste = []             # Container de l'arborescence des widget Station/Bay/IED../test step
-            self.tStation = []
-            self.tGraphicalBay = []
-            self.SCL_loaded = ''
 
             qr = self.frameGeometry()  # geometry of the main window
             cp = QDesktopWidget().availableGeometry().center()  # center point of screen
@@ -119,10 +115,6 @@ class MainWindow(QMainWindow):
 
             self.winLayout.addLayout(self.LoadingButtons())  # Top application button (TEMPLATE, SELECT FILE)
 
-            with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet):  # , self.T_LoadSCL):
-                print("Chargement SCL ok")  # str(self.T_LoadSCL))
-
-            X  = Test.TestPart()
             self.descLayout, self.descBox = self.DescriptionBox()
             self.winLayout.addLayout(self.descLayout)
 
@@ -131,6 +123,7 @@ class MainWindow(QMainWindow):
             self.tableView.setHorizontalHeaderLabels(('Topic', 'Choix 1', 'Choix 2', 'Choix 3', 'Choix 4s', 'Result'))
             Answer_size = 80
 
+#            while (True):
 
 
             self.tableView.setColumnWidth(0, 250)
@@ -142,6 +135,9 @@ class MainWindow(QMainWindow):
             self.tableView.setColumnWidth(6, Answer_size)
             self.tableView.setRowCount(4)
             self.winLayout.addWidget(self.tableView)
+
+            for data in JLPT_DATA.QuestionSet:
+                print('DATA'+ data)
 
             self.lstButton = []
             X1 = self.affiche_test(1, self.lstButton, " １．しゃ", "２．くるま", "３．ちゃ", "４．くろま")
@@ -243,60 +239,7 @@ class MainWindow(QMainWindow):
             return 
 
 
-       # détermine le chemein dans l'arbre Tranche/IED/LD/Steps pour faire les modifications.
-        def getPath(self, indexes):
 
-            if indexes is None or len(indexes) == 0:
-                return
-            index = indexes[0]
-
-            path = ''
-            while index.parent().isValid():
-                item = index.data()
-                _item = item.split(',')
-                IECitem = _item[0]
-                path = IECitem + '.' + path
-                index = index.parent()
-
-            path = index.data() + '.' + path  # Ins
-            return path
-
-        # \b EnregistrerCampagne:  Génère le fichier XML correspondant à l'affichage et la sélection courrantte
-        #
-        # Le principe est de lire les valeurs portées par l'IHM
-        def EnregistrerCampagne(self, Mode: bool):
-            logging.info('EnregistrerCampagne Button')
-
-
-
-        def LanceCampagne(self):
-            logging.info('Sauvegarde et lancer la campagne')
-
-        # \b addStation:  Ajoute le niveau SubStation dans l'arborescence de la campagne.
-        #
-        # @param poste: Objet graphique du plus haut niveau de l'arbre
-        # @param posteName: Nom du poste dans la balise du XML de campagne
-        # @param Voltage:  Niveau de tension du poste
-
-
-
-
-
-        ## \b CreationCampagne:  Affiche graphique du SCL limité à POSTE / Tranche /IED / LD/ Steps.
-        #                        permet la sélection des objets à tester et l'enregistrement d'une campange "instanciée".
-        #                        Les IED ne sont pas chargés en mémoire pour éviter des temps de traitement importants.
-        #
-        #
-        def CreationCampagne(self, initial=True):
-
-            self.treeView.clear()
-
-            logging.info('Fin Chargement graphique.')
-            self.treeView.expandAll()
-            self.treeView.show()
-
-        ## \b DialogueTestStep:  Affiche le dialogue pour ajouter un pas de test.
-        #
 
         def DialogueTestStep(self):
             logging.info("DialogueTestStep")
@@ -366,19 +309,17 @@ class MainWindow(QMainWindow):
 
             #        sys.exit(app.exec_())
 
-
-
-
-    with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet): 
+if __name__ == '__main__':
+    with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet):
         print("Chargement SCL ok")  # str(self.T_LoadSCL))
 
     Test = Test_JLPT(JLPT_TestSet)
-    Test.TestPart()
+    JLPT_DATA = Test.TestPart()
 
 
     print('xxxxxxxx')
     app = QApplication(sys.argv)
-    Win = MainWindow(JLPT_TestSet)
-    demo = Win.AppDemo(False)
+    Win = MainWindow(app)
+    demo = Win.AppDemo(JLPT_DATA)
     demo.show()
     sys.exit(app.exec_())
