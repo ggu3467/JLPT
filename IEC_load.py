@@ -23,12 +23,12 @@ class JLPT_Section:
         self.QuestionSet = []  # list[JLPT_Section.Question]       # liste de Question
 
 class Question:  #
-    def __init__(self, _text, _answer): #: list[str]):  # 問1・ 車の中に男の子が何人いますか。
-        self.text = _text  # 問1・ 車の中に男の子が何人いますか。
+    def __init__(self, _reponse_, _answer): #: list[str]):  # 問1・ 車の中に男の子が何人いますか。
+#        self.text = _text  # 問1・ 車の中に男の子が何人いますか。
         self.answer = _answer  # Choix de l'utilisateur
-        self.subQuestion = []  #: list[JLPT_Section.Question.Proposition]
+        self.subQuestion = [10]  #: list[JLPT_Section.Question.Proposition]
         self.question = ''  # （1）．雨 １．かぜ ２．あめ ３．ゆき ４．くも
-        self.reponse =  'reponse'
+        self.reponse =  _reponse_
         self.hint = ''
         self.answer = ''  # IHM answer
 

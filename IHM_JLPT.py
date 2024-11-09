@@ -1,4 +1,4 @@
-#
+ #
 # Copyright (c) 2019-2020, RTE (https://www.rte-france.com)
 #
 # This file is part of [R#SPACE], [IEC61850 Digital Control System testing.
