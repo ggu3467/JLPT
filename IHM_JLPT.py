@@ -91,7 +91,7 @@ class MainWindow(QMainWindow):
             self.DataJLPT = _DataJLPT
 
             for Question in _DataJLPT:
-                print('Question:' + Question.text)
+#                print('Question:' + Question.text)
                 for subQuestion in Question.subQuestion:
                     print('subQuestion:' + subQuestion)
 
@@ -140,7 +140,7 @@ class MainWindow(QMainWindow):
             self.tableView.setRowCount(4)
             self.winLayout.addWidget(self.tableView)
 
-            for data in JLPT_DATA.QuestionSet:
+            for data in JLPT_DATA:
                 print('DATA'+ data)
 
             self.lstButton = []
