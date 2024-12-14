@@ -62,16 +62,22 @@ class MainWindow(QMainWindow):
     #
     class AppDemo(QWidget):
 
-        def __init__(self, _DataJLPT):
+        def __init__(self, _DataJLPT,sheet):
             super().__init__()
             self.setWindowTitle('JLPT TEST 11 OK')
             self.setMinimumSize(1200,  800)  # Largeur minimale: 600, Hauteur minimale: 400
             self.setMaximumSize(1400,  800)
             self.DataJLPT = _DataJLPT
             self.TranformData = TransformInPutData()
-
+            self.sheet = sheet
             self.line = 0
             self.dataKey = ''
+#TODO
+## A METTRE EN COMMUN
+            self.TestSection        = 0  # Colonne 0 Titre 問題Ⅰ＿＿＿のことばはどうよみますか
+            self.TestQuestion       = 1  # Colonne 1     問1・ 車の中に男の子が何人いますか。
+            self.TestProposition    = 2  # Colonne 2     （1）．車 １．しゃ ２．くるま ３．ちゃ ４．くろま
+            self.reponseCorrecte    = 3
 
             qr = self.frameGeometry()  # geometry of the main window
             cp = QDesktopWidget().availableGeometry().center()  # center point of screen
@@ -108,7 +114,7 @@ class MainWindow(QMainWindow):
         def PresentationDesTest(self, _DataJLPT):
             Ligne = 0
             for data in JLPT_DATA:
-
+                XX = ''
                 for Question in _DataJLPT:
                     print('Question:' + Question.reponse)
                     #                    ReponsePossible = reponse.split(' ')
@@ -127,12 +133,24 @@ class MainWindow(QMainWindow):
                         Reponse2 = Choix[2][0][1:-1]
                         Reponse3 = Choix[3][0][1:-1]
                         Reponse4 = Choix[4][0][1:-1]
-                        Resultat = '-' 
+                        Resultat = '-'
 
+#                        _question = self.sheet.cell_value(lineIndex, self.TestQuestion)
+                        Ligne = Ligne + 1
+                        try:
+                            X1 = self.sheet.cell_value(Ligne, 0) # self.reponseCorrecte) #self.TestProposition)
+                            X2 = self.sheet.cell_value(Ligne, 1)  # self.reponseCorrecte) #self.TestProposition)
+                            X3 = self.sheet.cell_value(Ligne, 2)  # self.reponseCorrecte) #self.TestProposition)
+                            X4 = self.sheet.cell_value(Ligne, 3)  # self.reponseCorrecte) #self.TestProposition)
+                            print('Ligne-------' +  str(X1) + '-' + str(X2) + '-' + str(X3) +'-' + str(X4)) # + str(X5))
+                        except IndexError as e:
+                            print(f"Une exception s'est produite : {e}")
+                            continue
+#
                         Choix= [Reponse1, Reponse2, Reponse3,Reponse4,Resultat] # ,Reponse6,Reponse7]
                         self.affiche_test(Ligne, Question.reponse, Kanji, Choix)
 
-                        Ligne = Ligne + 1
+
 
                     NbQuestion = len(Question.subQuestion)
 
@@ -246,23 +264,16 @@ class MainWindow(QMainWindow):
             print('Accès partie3')
 
 
-
-
-
 if __name__ == '__main__':
-    with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet):
+    with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet,sheet):
         print("Chargement SCL ok")  # str(self.T_LoadSCL))
 
-    Test = Test_JLPT(JLPT_TestSet)
-    JLPT_DATA = Test.TestPart()
+    Test = Test_JLPT(JLPT_TestSet,sheet)
+    JLPT_DATA  = Test.TestPart(sheet)
 
     print('xxxxxxxx')
     app = QApplication(sys.argv)
     Win = MainWindow(app)
-    demo = Win.AppDemo(JLPT_DATA)
+    demo = Win.AppDemo(JLPT_DATA,sheet)
     demo.show()
     sys.exit(app.exec_())
-
-
-
-

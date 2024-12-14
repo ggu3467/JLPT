@@ -34,8 +34,9 @@ class Question:  #
 
 
 class Test_JLPT:
-    def __init__(self, sheet):
+    def __init__(self, book, sheet):
         self.sheet = sheet
+        self.book  = book
         self.Chapitre = ['問題Ⅰ', '問題ⅠⅠ', '問題Ⅲ']
         self.Section = [1, 2, 3]
         self.Consigne = ""  # " 問題Ⅰ＿＿＿のことばはどうよみますか"
@@ -43,11 +44,12 @@ class Test_JLPT:
         self.Part2 = []  # QuestionX()
         self.lineIndex = 1
 
-        self.TestSection = 0  # Colonne 0 Titre 問題Ⅰ＿＿＿のことばはどうよみますか
-        self.TestQuestion = 1  # Colonne 1     問1・ 車の中に男の子が何人いますか。
-        self.TestProposition = 2  # Colonne 2     （1）．車 １．しゃ ２．くるま ３．ちゃ ４．くろま
+        self.TestSection        = 0  # Colonne 0 Titre 問題Ⅰ＿＿＿のことばはどうよみますか
+        self.TestQuestion       = 1  # Colonne 1     問1・ 車の中に男の子が何人いますか。
+        self.TestProposition    = 2  # Colonne 2     （1）．車 １．しゃ ２．くるま ３．ちゃ ４．くろま
+        self.reponseCorrecte     = 3
 
-    def TestPart(self):
+    def TestPart(self, sheet):
         num_titre = 1
         self.lineIndex = 1
 
@@ -81,6 +83,7 @@ class Test_JLPT:
                     JLP_question = Question(_question, [])
                     lineIndex = lineIndex + 1
                     _SubQuestion = self.sheet.cell_value(lineIndex, self.TestProposition)
+                    _SubReponse  = self.sheet.cell_value(lineIndex, self.reponseCorrecte)
                 else:
     #                _SubQuestion.append(_SubQuestion) # '問1・ 車の中に男の子が何人いますか。'
                     while _SubQuestion.startswith('（'):
@@ -88,8 +91,10 @@ class Test_JLPT:
                         print('SubQuestion : ', _SubQuestion + ' ' + str(lineIndex))
                         lineIndex = lineIndex + 1
                         _SubQuestion = self.sheet.cell_value(lineIndex, self.TestProposition)
+                        _SubReponse  = self.sheet.cell_value(lineIndex, self.reponseCorrecte)
 
-                    _question = self.sheet.cell_value(lineIndex, self.TestQuestion)
+                    _question = self.sheet.cell_value(lineIndex,   self.TestQuestion)
+                    _SubReponse = self.sheet.cell_value(lineIndex, self.reponseCorrecte)
                     GlobalList.append(JLP_question)
                     if _question.startswith('問'):
                         continue
@@ -112,15 +117,16 @@ class Test_JLPT:
 # @return tComm     : Image de la section Communication du SCL
 
 class LoadExcel(object):
-    def __init__(self, _name: str, _load_excel: bool = False, _fullpath=False):
+    def __init__(self, _name: str, sheet, _load_excel: bool = False, _fullpath=False):
         self.file_name = _name
         self.full_path = _fullpath
         self.load_excel = _load_excel
+        self.sheet = sheet
 
     def __enter__(self):
         self.Test_Set = XLRD.open_workbook(self.file_name)
-        sheet = self.Test_Set.sheet_by_index(0)  # Accès au premier onglet du tableau Excel
-        return sheet
+        self.sheet = self.Test_Set.sheet_by_index(0)  # Accès au premier onglet du tableau Excel
+        return (self.Test_Set, self.sheet)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         print("__exit__")
@@ -129,10 +135,10 @@ class LoadExcel(object):
 
 
 if __name__ == '__main__':
-    with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet):
+    with LoadExcel("JLPT_3_ESSAI_2003.xls", True, False) as (JLPT_TestSet, sheet):
         print("Chargement SCL ok")  # str(self.T_LoadSCL))
 
-    Test = Test_JLPT(JLPT_TestSet)
+    Test = Test_JLPT(JLPT_TestSet,sheet)
     Test.TestPart()
 
 
