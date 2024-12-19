@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
 
         def __init__(self, _DataJLPT,sheet):
             super().__init__()
-            self.setWindowTitle('JLPT TEST 11 OK')
+            self.setWindowTitle('JLPT TEST 16 OK')
             self.setMinimumSize(1200,  800)  # Largeur minimale: 600, Hauteur minimale: 400
             self.setMaximumSize(1400,  800)
             self.DataJLPT = _DataJLPT
@@ -129,10 +129,10 @@ class MainWindow(QMainWindow):
                         Choix = TransformInPutData.Transform0(subQuest,Kanji)  # Présenter les données pour l'IHM
 
 #                        Reponse1 = Choix[1]
-                        Reponse1 = Choix[1][0][1:-1]
-                        Reponse2 = Choix[2][0][1:-1]
-                        Reponse3 = Choix[3][0][1:-1]
-                        Reponse4 = Choix[4][0][1:-1]
+                        _Reponse1 = Choix[1][0]
+                        _Reponse2 = Choix[2][0]
+                        _Reponse3 = Choix[3][0]
+                        _Reponse4 = Choix[4][0]
                         Resultat = '-'
 
 #                        _question = self.sheet.cell_value(lineIndex, self.TestQuestion)
@@ -147,7 +147,7 @@ class MainWindow(QMainWindow):
                             print(f"Une exception s'est produite : {e}")
                             continue
 #
-                        Choix= [Reponse1, Reponse2, Reponse3,Reponse4,Resultat] # ,Reponse6,Reponse7]
+                        Choix= [_Reponse1, _Reponse2, _Reponse3,_Reponse4,Resultat] # ,Reponse6,Reponse7]
                         self.affiche_test(Ligne, Question.reponse, Kanji, Choix)
 
 
@@ -196,7 +196,8 @@ class MainWindow(QMainWindow):
             Reponse2 = QRadioButton(str(Choix[1]))
             Reponse3 = QRadioButton(str(Choix[2]))
             Reponse4 = QRadioButton(str(Choix[3]))
-            Reponse5 = QTextEdit('resultat')
+
+            Reponse5 = QTextEdit()
 
             buttonGroup = QButtonGroup()
             buttonGroup.addButton(Reponse1)
